@@ -158,6 +158,7 @@ class SocketServer {
   async createTwoUserConversation(conversationObj, user) {
     // find user participant 
     const existingUserParticipant = await User.findOne({
+      // yes
       where: {
         id: conversationObj.conversationParticipantId,
       },
