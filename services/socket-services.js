@@ -11,7 +11,7 @@ class SocketServer {
     try {
       // get active user from users array
       const user = users.find((user) => user.id === socket.id);
-      
+
       // chat object
       const chatObj = { conversation_id: messageObj.conversationId, sender_id: user.user_id, content: messageObj.message }
 
@@ -64,10 +64,13 @@ class SocketServer {
   }
 
   // handle get conversation list
-  async handleGetConversationList(io, socket) {
+  async handleGetConversationList(io, socket, users) {
     try {
+      const user = users.find((user) => user.id === socket.id);
+      console.log(user.user_id);
       const conversations = await Conversation.findAll({
         include: [
+          // chat list
           {
             model: Chat,
             required: false,
@@ -79,13 +82,35 @@ class SocketServer {
               this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT,
               this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT
             ],
-            as: this.constants.DATABASE.CONNECTION_REF.CHATS
-          }],
-        // group: ['Conversation.id'],
+            as: this.constants.DATABASE.CONNECTION_REF.CHATS,
+           
+          },
+          {
+            model: Participant,
+            include: [
+              {
+                model: User,
+                attributes: [
+                  this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
+                  this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
+                  this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+                ],
+                as: this.constants.DATABASE.CONNECTION_REF.USER,
+                where: {
+                  id: {
+                    [Sequelize.Op.ne]: user.user_id // Assuming loggedInUserId holds the ID of the logged-in user
+                  }
+              },
+              },
+            ],
+            attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID],
+            as: this.constants.DATABASE.CONNECTION_REF.CONVERSATIONS
+          }
+        ],
         attributes: [
           this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
           this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT,
-          this.constants.DATABASE.TABLE_ATTRIBUTES.CONVERSATION.CONVERSATION_NAME
+          // this.constants.DATABASE.TABLE_ATTRIBUTES.CONVERSATION.CONVERSATION_NAME
         ],
         order: [
           [
@@ -158,7 +183,6 @@ class SocketServer {
   async createTwoUserConversation(conversationObj, user) {
     // find user participant 
     const existingUserParticipant = await User.findOne({
-      // yes
       where: {
         id: conversationObj.conversationParticipantId,
       },

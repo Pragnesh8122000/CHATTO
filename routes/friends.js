@@ -6,7 +6,8 @@ class FriendsRouter {
   }
 
   setRoutes() {
-    this.router.get("/friend/list", this.friendsController.getFriendRequestList);
+    this.router.get("/friend/req/list", this.friendsController.getFriendRequestList);
+    this.router.get("/friend/list", this.friendsController.getFriendsList);
     this.router.get("/friend/count", this.friendsController.getFriendRequestCount);
     this.router.post("/friend/req", this.friendsController.sendFriendRequest);
     this.router.put("/friend/req/response/:reqId", this.friendsController.responseFriendRequest);

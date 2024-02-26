@@ -38,10 +38,10 @@ class Socket {
           socket.on(this.constants.SOCKET.EVENTS.MESSAGE, (messageObj) => this.services.handleMessageEvent(this.io, socket, messageObj, this.users));
 
           // listen to get conversation list event
-          socket.on(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, () => this.services.handleGetConversationList(this.io, socket));
+          socket.on(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, () => this.services.handleGetConversationList(this.io, socket, this.users));
 
           // listen to start conversation 
-          socket.on(this.constants.SOCKET.EVENTS.START_CONVERSATION, (conversationObj) => this.services.handleStartConversation(this.io, socket, conversationObj));
+          // socket.on(this.constants.SOCKET.EVENTS.START_CONVERSATION, (conversationObj) => this.services.handleStartConversation(this.io, socket, conversationObj));
 
           // listen to get chat list
           socket.on(this.constants.SOCKET.EVENTS.GET_SINGLE_CONVERSATION_CHAT, (conversationObj) => this.services.handleGetChatList(this.io, socket, this.users, conversationObj));

@@ -11,15 +11,15 @@ class App {
         this.app.use(this.express.json());
 
         // cors
-        this.app.use(this.cors({ origin : "*" }));
+        this.app.use(this.cors({ origin: "*" }));
 
         // public routes without authentication
         this.app.use("/api", this.indexRouter.publicRouter);
         // private routes with authentication
         this.app.use(
-          "/",
-          this.middleware.authenticate,
-          this.indexRouter.privateRouter
+            "/",
+            this.middleware.authenticate,
+            this.indexRouter.privateRouter
         );
 
         this.app.listen(process.env.PORT, () => {
