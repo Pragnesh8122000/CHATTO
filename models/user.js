@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Department, { foreignKey: 'department_id', as: 'department' })
 
       // New associations for participants
-      this.hasMany(models.Participant, { foreignKey: 'user_id', as: 'participants' })
+      // this.hasMany(models.Participant, { foreignKey: 'user_id', as: 'participants' })
 
       // New associations for conversations
       this.hasMany(models.Conversation, { foreignKey: 'conversation_creator_id', as: 'conversations' })
@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Friend, { foreignKey: 'to_user_id', as: 'req_from' })
 
       this.hasMany(models.Friend, { foreignKey: 'from_user_id', as: 'req_to' })
+
+      // Participant belongs to User
+      this.belongsTo(models.Participant, { foreignKey: 'user_id', as: 'user' });
     }
   }
   User.init({

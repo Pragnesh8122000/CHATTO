@@ -62,6 +62,7 @@ class FriendsController {
     }
   };
 
+  // Get friends list (GET)
   getFriendsList = async (req, res) => {
     try {
       // get currently logged-in user

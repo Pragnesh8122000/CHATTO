@@ -67,8 +67,8 @@ class SocketServer {
   async handleGetConversationList(io, socket, users) {
     try {
       const user = users.find((user) => user.id === socket.id);
-      console.log(user.user_id);
-      const conversations = await Conversation.findAll({
+      let conversationsData = [];
+      let conversations = await Conversation.findAll({
         include: [
           // chat list
           {
@@ -83,7 +83,7 @@ class SocketServer {
               this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT
             ],
             as: this.constants.DATABASE.CONNECTION_REF.CHATS,
-           
+
           },
           {
             model: Participant,
@@ -98,9 +98,9 @@ class SocketServer {
                 as: this.constants.DATABASE.CONNECTION_REF.USER,
                 where: {
                   id: {
-                    [Sequelize.Op.ne]: user.user_id // Assuming loggedInUserId holds the ID of the logged-in user
+                    [Sequelize.Op.ne]: user.user_id
                   }
-              },
+                },
               },
             ],
             attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID],
@@ -117,8 +117,18 @@ class SocketServer {
             Sequelize.literal(this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT), this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
           ]
         ],
-      });
-      io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: conversations });
+      })
+      conversations = conversations.map((conversation) => {
+        conversationsData.push({
+          user: {
+            first_name: conversation.conversations[0].user.first_name,
+            last_name: conversation.conversations[0].user.last_name,
+          },
+          chats: conversation.chats
+        })
+      })
+
+      io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: conversationsData });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
