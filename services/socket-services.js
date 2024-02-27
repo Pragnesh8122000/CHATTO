@@ -119,13 +119,21 @@ class SocketServer {
         ],
       })
       conversations = conversations.map((conversation) => {
-        conversationsData.push({
-          user: {
-            first_name: conversation.conversations[0].user.first_name,
-            last_name: conversation.conversations[0].user.last_name,
-          },
-          chats: conversation.chats
-        })
+        if (conversation.chats.length) {
+          conversationsData.push({
+            conversationDetails : {
+              id: conversation.id,
+              created_at: conversation.createdAt
+            },
+            user: {
+              id: conversation.conversations[0].user.id,
+              first_name: conversation.conversations[0].user.first_name,
+              last_name: conversation.conversations[0].user.last_name,
+            },
+            chats: conversation.chats[0]
+          })
+        }
+        return conversation
       })
 
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: conversationsData });

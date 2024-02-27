@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 
       // Participant belongs to User
       this.belongsTo(models.User, {
-        foreignKey: 'user_id',
+        foreignKey: 'id',
         as: 'user'
       });
       

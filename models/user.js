@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Friend, { foreignKey: 'from_user_id', as: 'req_to' })
 
       // Participant belongs to User
-      this.belongsTo(models.Participant, { foreignKey: 'user_id', as: 'user' });
+      this.hasMany(models.Participant, { foreignKey: 'user_id', as: 'user' });
     }
   }
   User.init({
