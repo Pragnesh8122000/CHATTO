@@ -7,7 +7,8 @@ module.exports = {
             CONVERSATION_LIST: "conversation-list",
             START_CONVERSATION : "start-conversation",
             GET_SINGLE_CONVERSATION_CHAT : "get-single-conversation-chat",
-            ERROR: "error"
+            ERROR: "error",
+            CHAT_LIST : "chat-list",
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",

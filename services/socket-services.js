@@ -12,6 +12,16 @@ class SocketServer {
       // get active user from users array
       const user = users.find((user) => user.id === socket.id);
 
+      const receiverParticipantUID = await Participant.findOne({
+        where: {
+          user_id: { [Op.ne]: user.user_id },
+          conversation_id: messageObj.conversationId
+        }
+      })
+
+      // get receiver from users array
+      const receiver = users.find((user) => user.user_id === receiverParticipantUID.user_id);
+
       // chat object
       const chatObj = { conversation_id: messageObj.conversationId, sender_id: user.user_id, content: messageObj.message }
 
@@ -33,8 +43,13 @@ class SocketServer {
         },
       });
 
-      // send message to all members joined in room created by conversation id
-      io.to(user.conversation_id).emit(this.constants.SOCKET.EVENTS.MESSAGE, { chat: chatList });
+      // emit to user if receiver is online
+      if (receiver) {
+        io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.CHAT_LIST, { chat: chatList });
+      }
+
+      // emit to logged-in user
+      io.to(user.id).emit(this.constants.SOCKET.EVENTS.CHAT_LIST, { chat: chatList });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
@@ -68,73 +83,69 @@ class SocketServer {
     try {
       const user = users.find((user) => user.id === socket.id);
       let conversationsData = [];
-      let conversations = await Conversation.findAll({
-        include: [
-          // chat list
-          {
-            model: Chat,
-            required: false,
-            separate: true,
-            order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC]],
-            limit: 1,
-            attributes: [
-              this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.SENDER_ID,
-              this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT,
-              this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT
-            ],
-            as: this.constants.DATABASE.CONNECTION_REF.CHATS,
-
-          },
-          {
-            model: Participant,
-            include: [
-              {
-                model: User,
-                attributes: [
-                  this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
-                  this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
-                  this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
-                ],
-                as: this.constants.DATABASE.CONNECTION_REF.USER,
-                where: {
-                  id: {
-                    [Sequelize.Op.ne]: user.user_id
-                  }
-                },
-              },
-            ],
-            attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID],
-            as: this.constants.DATABASE.CONNECTION_REF.CONVERSATIONS
-          }
-        ],
-        attributes: [
-          this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
-          this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT,
-          // this.constants.DATABASE.TABLE_ATTRIBUTES.CONVERSATION.CONVERSATION_NAME
-        ],
-        order: [
-          [
-            Sequelize.literal(this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT), this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
-          ]
-        ],
-      })
-      conversations = conversations.map((conversation) => {
-        if (conversation.chats.length) {
-          conversationsData.push({
-            conversationDetails : {
-              id: conversation.id,
-              created_at: conversation.createdAt
-            },
-            user: {
-              id: conversation.conversations[0].user.id,
-              first_name: conversation.conversations[0].user.first_name,
-              last_name: conversation.conversations[0].user.last_name,
-            },
-            chats: conversation.chats[0]
-          })
+      const userParticipatedChats = await Participant.findAll({
+        where: {
+          user_id: user.user_id,
         }
-        return conversation
+      });
+
+      const conversationIds = userParticipatedChats.map((participant) => {
+        return participant.conversation_id
       })
+
+      if (!conversationIds.length) {
+        io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: [] });
+        return
+      }
+
+      const conversationList = await conversationIds.map(async (conversationId) => {
+        const chats = await Chat.findAll({
+          where: {
+            conversation_id: conversationId
+          },
+          attributes: [
+            this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.SENDER_ID,
+            this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT,
+            this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT
+          ],
+          order: [
+            [
+              Sequelize.literal(this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT), this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
+            ]
+          ],
+        });
+        const userDetails = await Participant.findOne({
+          where: {
+            conversation_id: conversationId
+          },
+          include: [
+            {
+              model: User,
+              attributes: [
+                this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
+                this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
+                this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+              ],
+              as: this.constants.DATABASE.CONNECTION_REF.USER,
+              where: {
+                id: {
+                  [Sequelize.Op.ne]: user.user_id
+                }
+              },
+            },
+          ],
+          attributes: [],
+        });
+        conversationsData.push({
+          conversationDetails: {
+            id: conversationId
+          },
+          user: userDetails.user,
+          chats: chats
+        })
+      })
+
+      await Promise.all(conversationList);
 
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: conversationsData });
     } catch (error) {
