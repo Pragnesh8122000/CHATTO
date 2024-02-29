@@ -47,9 +47,9 @@ app.use(cors({ origin: "*" }));
 app.use("/api", indexRouter.publicRouter);
 app.use("/", middleware.authenticate, indexRouter.privateRouter);
 
-// Start server
-const server = app.listen(process.env.PORT, () => {
-    console.log(`Server is listening on port ${process.env.PORT}`);
-});
+// // Start server
+// const server = app.listen(process.env.PORT, () => {
+//     console.log(`Server is listening on port ${process.env.PORT}`);
+// });
 
-module.exports = server;
+module.exports = app;
