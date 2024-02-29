@@ -5,12 +5,11 @@
     "database": "verceldb",
     "host": "ep-rapid-mode-a4d68gp8-pooler.us-east-1.aws.neon.tech",
     "dialect": "postgres",
-    "dialectModule": "pg", 
     "dialectOptions": {
       "ssl": {
-          "require": true,
-          "rejectUnauthorized": false
+        "require": true,
+        "rejectUnauthorized": false
       }
-   }
+    }
   }
 }
