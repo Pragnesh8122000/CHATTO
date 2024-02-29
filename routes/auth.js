@@ -8,6 +8,7 @@ class AuthRouter {
     setRoutes() {
       this.router.post("/login", this.authController.loginUser);
       this.router.post("/signup", this.authController.signupUser);
+      this.router.get("/conn", this.authController.connectionTest);
     }
   }
   

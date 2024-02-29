@@ -119,6 +119,13 @@ class AuthController {
       }
     };
   }
+
+  connectionTest = (req, res) => {
+    res.status(200).send({
+      status: true,
+      message: "Connection Successful",
+    });
+  };
 }
 
 module.exports = new AuthController();
