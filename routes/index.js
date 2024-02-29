@@ -27,20 +27,3 @@ class IndexRouter {
 
 const router = new IndexRouter();
 module.exports = router;
-
-
-
-// class UserRouter {
-//     constructor() {
-//       this.router = require("express").Router();
-//       this.authController = require("../controller/auth.controller");
-//       this.setRoutes();
-//     }
-  
-//     setRoutes() {
-//       this.router.post("/login", this.authController.loginUser);
-//     }
-//   }
-  
-//   const router = new UserRouter();
-//   module.exports = router.router;

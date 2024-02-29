@@ -2,7 +2,7 @@ const { Conversation, Participant, Friend, User } = require("../models");
 const { Op, Sequelize } = require("sequelize");
 class FriendsController {
   constructor() {
-    this.messages = require("../messages/friends.messages");
+    // this.messages = require("../messages/friends.messages");
     this.validation = require("../validations/friends.validation");
     this.constants = require("../helpers/constants");
     this.helpers = require("../helpers/helper");
