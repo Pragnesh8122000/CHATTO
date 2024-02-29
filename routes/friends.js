@@ -4,7 +4,7 @@ class FriendsRouter {
     this.friendsController = require("../controller/friends.controller");
     this.setRoutes();
   }
-  
+
 
   setRoutes() {
     this.router.get("/friend/req/list", this.friendsController.getFriendRequestList);

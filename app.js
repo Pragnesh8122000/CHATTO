@@ -14,7 +14,7 @@ class App {
         this.app.use(this.cors({ origin: "*" }));
 
         // public routes without authentication
-        this.app.use("/api", this.indexRouter.publicRouter); 
+        this.app.use("/api", this.indexRouter.publicRouter);
         // private routes with authentication
         this.app.use(
             "/",
