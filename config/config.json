@@ -4,6 +4,6 @@
     "password": "123",
     "database": "chatto",
     "host": "localhost",
-    "dialect": "mysql"
+    "dialect": "postgres"
   }
 }

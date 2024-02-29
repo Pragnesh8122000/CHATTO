@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const departmentValidation = Joi.object({
-  department: Joi.string()
+  department_name: Joi.string()
     .min(0)
     .max(25)
     .regex(/^[A-Za-z0-9_@-]+$/)
