@@ -120,7 +120,7 @@ class AuthController {
     };
   }
 
-  connectionTest = (req, res) => {
+  connectionTest = async (req, res) => {
     res.status(200).send({
       status: true,
       message: "Connection Successful",
