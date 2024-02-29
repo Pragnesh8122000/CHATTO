@@ -14,5 +14,6 @@ class FriendsRouter {
   }
 }
 
+
 const router = new FriendsRouter();
 module.exports = router.router;
