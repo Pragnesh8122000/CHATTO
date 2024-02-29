@@ -21,7 +21,7 @@ class IndexRouter {
     this.privateRouter.use("/", this.userRouter);
     this.privateRouter.use("/", this.deptRouter);
     this.privateRouter.use("/", this.chatRouter);
-    this.privateRouter.use("/", this.friendsRouter);
+    // this.privateRouter.use("/", this.friendsRouter);
   }
 }
 
