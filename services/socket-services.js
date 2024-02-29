@@ -99,7 +99,8 @@ class SocketServer {
       }
 
       const conversationList = await conversationIds.map(async (conversationId) => {
-        const chats = await Chat.findAll({
+        // get last chat
+        const chats = await Chat.findOne({
           where: {
             conversation_id: conversationId
           },
@@ -113,7 +114,13 @@ class SocketServer {
               Sequelize.literal(this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT), this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
             ]
           ],
+          limit: 1,
         });
+
+        // if not any chat found then don't send conversation
+        if (!chats.length) return
+
+        // get user details
         const userDetails = await Participant.findOne({
           where: {
             conversation_id: conversationId
@@ -136,12 +143,14 @@ class SocketServer {
           ],
           attributes: [],
         });
+
+        // push conversation details
         conversationsData.push({
           conversationDetails: {
             id: conversationId
           },
           user: userDetails.user,
-          chats: chats
+          chats: chats[0]
         })
       })
 
