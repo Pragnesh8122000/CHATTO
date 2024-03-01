@@ -25,6 +25,10 @@ module.exports = {
           key: 'id'
         }
       },
+      req_occurrence_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
       status: {
         type: Sequelize.ENUM('pending', 'accepted', 'rejected'),
         defaultValue: 'pending'

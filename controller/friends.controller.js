@@ -139,7 +139,7 @@ class FriendsController {
           }
 
           // Check if user has sent too many friend request
-          if (existingFriendReq.req_occurrence_count >= 5) {
+          if (existingFriendReq.req_occurrence_count && existingFriendReq.req_occurrence_count >= 5) {
             return res.status(422).send({
               status: false,
               message: this.messages.allMessages.TOO_MANY_REQUESTS_SENT,

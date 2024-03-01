@@ -82,6 +82,7 @@ class SocketServer {
   async handleGetConversationList(io, socket, users) {
     try {
       const user = users.find((user) => user.id === socket.id);
+      console.log(user.user_id);
       let conversationsData = [];
       const userParticipatedChats = await Participant.findAll({
         where: {
@@ -92,15 +93,15 @@ class SocketServer {
       const conversationIds = userParticipatedChats.map((participant) => {
         return participant.conversation_id
       })
+      console.log(conversationIds);
 
       if (!conversationIds.length) {
         io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: [] });
         return
       }
-
       const conversationList = await conversationIds.map(async (conversationId) => {
         // get last chat
-        const chats = await Chat.findOne({
+        const chats = await Chat.findAll({
           where: {
             conversation_id: conversationId
           },
@@ -111,7 +112,7 @@ class SocketServer {
           ],
           order: [
             [
-              Sequelize.literal(this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT), this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
+              this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC
             ]
           ],
           limit: 1,
@@ -155,7 +156,6 @@ class SocketServer {
       })
 
       await Promise.all(conversationList);
-
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.CONVERSATION_LIST, { conversationList: conversationsData });
     } catch (error) {
       console.log(error);
