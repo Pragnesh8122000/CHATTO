@@ -17,7 +17,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
       - db:/var/lib/postgres
   app:
@@ -26,7 +26,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "80:3000"
     environment:
       - DB_ENV=development-docker
     stdin_open: true
