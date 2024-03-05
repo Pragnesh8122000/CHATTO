@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
     "seed:admin-user": "node seeder/seed.js user",
-    "update:add-friend-req-occurrence-count-field": "node seeders/seed.js add-friend-req-occurrence-count"
+    "update:add-friend-req-occurrence-count-field": "node seeders/seed.js add-friend-req-occurrence-count",
+    "migrate": "npx sequelize-cli db:migrate"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.35.2",
+    "sequelize-cli": "^6.6.2",
     "socket.io": "^4.7.4",
     "vercel": "^33.5.3"
   }

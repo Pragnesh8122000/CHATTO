@@ -1,15 +1,10 @@
 {
   "development": {
-    "username": "default",
-    "password": "sXh3WUBP4nyY",
-    "database": "verceldb",
-    "host": "ep-rapid-mode-a4d68gp8-pooler.us-east-1.aws.neon.tech",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "username": "root",
+    "password": "123",
+    "database": "chattodocker",
+    "port": "5432",
+    "host": "localhost",
+    "dialect": "postgres"
   }
 }

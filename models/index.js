@@ -10,24 +10,19 @@ const env = 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-let sequelize;
+// let sequelize;
 // sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 // Use the built-in Sequelize.postgres dialect
-sequelize = new Sequelize({
-  dialect: 'postgres',
-  database: config.database,
-  username: config.username,
-  password: config.password,
-  host: config.host,
-  port: config.port,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  }
-});
+// sequelize = new Sequelize({
+//   dialect: 'postgres',
+//   database: config.database,
+//   username: config.username,
+//   password: config.password,
+//   host: config.host,
+//   port: config.port,
+// });
+const sequelize = new Sequelize("postgres://root:123@node_db:5432/test-chatto");
 
 fs
   .readdirSync(__dirname)
@@ -44,6 +39,15 @@ fs
     db[model.name] = model;
   });
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -52,5 +56,7 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+
 
 module.exports = db;
