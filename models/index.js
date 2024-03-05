@@ -6,7 +6,7 @@ const Sequelize = require('sequelize');
 const { Client } = require("pg")
 const process = require('process');
 const basename = path.basename(__filename);
-const env = 'development';
+const env = process.env.DB_ENV || "development-docker";
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
@@ -14,15 +14,15 @@ const db = {};
 // sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 // Use the built-in Sequelize.postgres dialect
-// sequelize = new Sequelize({
-//   dialect: 'postgres',
-//   database: config.database,
-//   username: config.username,
-//   password: config.password,
-//   host: config.host,
-//   port: config.port,
-// });
-const sequelize = new Sequelize("postgres://root:123@node_db:5432/test-chatto");
+const sequelize = new Sequelize({
+  dialect: 'postgres',
+  database: config.database,
+  username: config.username,
+  password: config.password,
+  host: config.host,
+  port: config.port,
+});
+// const sequelize = new Sequelize("postgres://root:123@node_db:5432/test-chatto");
 
 fs
   .readdirSync(__dirname)

@@ -1,35 +1,28 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  node_app:
-    container_name: node_app
+  postgresdb:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=chattodocker
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=123
+    ports:
+      - "7500:5432"
+    volumes:
+      - db:/var/lib/postgres
+  app:
+    depends_on:
+      - postgresdb
     build: .
-    image: node_live_app
+    restart: unless-stopped
     ports:
       - "1080:3000"
     environment:
-      - PG_DB=test-chatto
-      - PG_USER=root
-      - PG_PASSWORD=123
-      - PG_HOST=node_db
-    restart: always
-    depends_on:
-      - node_db
-  
-  node_db:
-    container_name: node_db
-    image: postgres:12
-    ports:
-      - "7500:5432"
-    environment:
-      - POSTGRES_DB=test-chatto
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=123
-    volumes:
-      - node_db_data:/var/lib/postgresql/data
+      - DB_ENV=development-docker
+    stdin_open: true
+    tty: true
 
-volumes:
-  node_db_data: {}
-
-
-
+volumes: 
+  db:

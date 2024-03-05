@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
-    "seed:admin-user": "node seeder/seed.js user",
+    "seed:admin-user": "node seeders/seed.js user",
     "update:add-friend-req-occurrence-count-field": "node seeders/seed.js add-friend-req-occurrence-count",
     "migrate": "npx sequelize-cli db:migrate"
   },

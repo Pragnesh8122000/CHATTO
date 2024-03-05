@@ -1,9 +1,17 @@
 {
-  "development": {
+  "development-docker": {
     "username": "root",
     "password": "123",
     "database": "chattodocker",
     "port": "5432",
+    "host": "postgresdb",
+    "dialect": "postgres"
+  },
+  "development": {
+    "username": "root",
+    "password": "123",
+    "database": "chattodocker",
+    "port": "7500",
     "host": "localhost",
     "dialect": "postgres"
   }
