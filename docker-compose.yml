@@ -1,4 +1,6 @@
-version: '3.8'
+# @format
+
+version: "3.8"
 
 services:
   adminer:
@@ -26,11 +28,11 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "80:3000"
+      - "8000:3000"
     environment:
       - DB_ENV=development-docker
     stdin_open: true
     tty: true
 
-volumes: 
+volumes:
   db:
