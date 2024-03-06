@@ -11,6 +11,14 @@
     "username": "root",
     "password": "123",
     "database": "chattodocker",
+    "port": "5434",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "local": {
+    "username": "root",
+    "password": "123",
+    "database": "chatto",
     "port": "5432",
     "host": "localhost",
     "dialect": "postgres"

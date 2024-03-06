@@ -15,11 +15,11 @@ class IndexRouter {
   // Public routes that do not require authentication
   setPublicRoutes() {
     this.publicRouter.use("/", this.authRouter);
+    this.publicRouter.use("/", this.deptRouter);
   }
   // Private routes that requires authentication
   setPrivateRoutes() {
     this.privateRouter.use("/", this.userRouter);
-    this.privateRouter.use("/", this.deptRouter);
     this.privateRouter.use("/", this.chatRouter);
     this.privateRouter.use("/", this.friendsRouter);
   }

@@ -6,10 +6,10 @@ const Sequelize = require('sequelize');
 const { Client } = require("pg")
 const process = require('process');
 const basename = path.basename(__filename);
+require("dotenv").config()
 const env = process.env.DB_ENV || "development-docker";
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
-
 // let sequelize;
 // sequelize = new Sequelize(config.database, config.username, config.password, config);
 
