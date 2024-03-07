@@ -1,5 +1,6 @@
 const { Conversation, Participant, Friend, User } = require("../models");
 const { Op, Sequelize } = require("sequelize");
+const { io, users } = require("../socketServices");
 class FriendsController {
   constructor() {
     this.messages = require("../messages/friends.messages");
@@ -69,7 +70,7 @@ class FriendsController {
       const user = req.currentUser
 
       // Get friends list
-      const friends = await Friend.findAll({
+      let friends = await Friend.findAll({
         where: {
           // get friends whose front id and to id is current user
           [Op.or]: [
@@ -85,12 +86,37 @@ class FriendsController {
         ],
       });
 
+      const filteredFriends = friends.map(friend => {
+        // Check for user ID match in either req_from or req_to
+        if (friend.req_to.id === user.user_id) {
+          // Keep all properties and return req_from
+          // get friend without req_to
+          friend = friend.get({ plain: true });
+          let receiverUser = friend.req_from;
+          delete friend.req_to;
+          delete friend.req_from;
+          return { user: receiverUser, ...friend };
+
+        } else if (friend.req_from.id === user.user_id) {
+          // Keep all properties and return req_to
+          friend = friend.get({ plain: true });
+          let receiverUser = friend.req_to;
+          delete friend.req_from;
+          delete friend.req_to;
+          return { user: receiverUser, ...friend };
+        } else {
+          // No match, remove the entire friend object
+          return null;
+        }
+      })
+
       return res.status(200).send({
         status: true,
         message: this.messages.allMessages.GET_FRIENDS_LIST,
-        friends,
+        friends: filteredFriends,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).send({
         status: false,
         message: this.messages.allMessages.GET_FRIENDS_LIST_FAILED,
@@ -109,6 +135,7 @@ class FriendsController {
     } else {
       try {
         const { user_code } = req.body;
+        const { currentUser } = req;
 
         // Check if receiver exists
         const receiver = await User.findOne({ where: { user_code } });
@@ -118,6 +145,31 @@ class FriendsController {
           return res.status(422).send({
             status: false,
             message: this.messages.allMessages.RECEIVER_NOT_FOUND,
+          });
+        }
+
+        // fire socket to receiver about new friend request
+        // get socket id of receiver
+        const socketId = users.filter((user) => user.user_id === receiver.id)[0]?.id;
+        if (socketId) {
+          let socket = req.app.get('socketService');
+          socket.to(socketId).emit(this.constants.SOCKET.EVENTS.FRIENDS_COUNT);
+        }
+
+        // check if already friends
+        const existingFriends = await Friend.findOne({
+          where: {
+            [Op.or]: [
+              { from_user_id: receiver.id, to_user_id: currentUser.user_id },
+              { from_user_id: currentUser.user_id, to_user_id: receiver.id },
+            ],
+          }
+        })
+
+        if (existingFriends) {
+          return res.status(422).send({
+            status: false,
+            message: this.messages.allMessages.ALREADY_FRIENDS,
           });
         }
 
@@ -218,12 +270,11 @@ class FriendsController {
         // message according to status
         const message = status === this.constants.DATABASE.ENUMS.STATUS.ACCEPTED ? this.messages.allMessages.ACCEPTED_FRIEND_REQUEST : this.messages.allMessages.REJECTED_FRIEND_REQUEST;
 
+        // create conversation if status is accepted and conversation does not exist
         if (status === this.constants.DATABASE.ENUMS.STATUS.ACCEPTED) {
           const conversationObj = { isGroupChat: false, conversationParticipantId: existingRequest.from_user_id };
           conversation = await this.helpers.createTwoUserConversation(conversationObj, req.currentUser);
         }
-
-        console.log("conversation", conversation);
 
         res.status(200).send({
           status: true,

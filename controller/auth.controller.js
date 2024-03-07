@@ -73,9 +73,16 @@ class AuthController {
     } else {
       try {
         const { first_name, last_name, email, password, department_name } = req.body;
+
+        // get the department id from the department name
         const department = await Department.findOne({
           where: { department_name, }
         })
+        // if department is not found
+        if (!department) {
+          return res.status(422).send({ status: false, message: this.messages.allMessages.DEPARTMENT_NOT_EXIST });
+        }
+
         const userObj = { first_name, last_name, email, password, department_id: department.id };
 
         // Generate user code

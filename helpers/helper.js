@@ -20,8 +20,6 @@ exports.generateUserCode = async () => {
 };
 
 exports.createTwoUserConversation = async (conversationObj, user) => {
-
-  console.log(user);
   // find user participant 
   const existingUserParticipant = await User.findOne({
     where: {
@@ -64,7 +62,6 @@ exports.createTwoUserConversation = async (conversationObj, user) => {
 
   // create conversation
   const conversation = await Conversation.create(conversationRecordObj);
-  console.log("CREATED");
 
   // create participants
   const participantRecordsArray =

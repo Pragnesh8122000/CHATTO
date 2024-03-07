@@ -5,10 +5,11 @@ module.exports = {
             DISCONNECT: "disconnect",
             MESSAGE: "message",
             CONVERSATION_LIST: "conversation-list",
-            START_CONVERSATION : "start-conversation",
-            GET_SINGLE_CONVERSATION_CHAT : "get-single-conversation-chat",
+            START_CONVERSATION: "start-conversation",
+            GET_SINGLE_CONVERSATION_CHAT: "get-single-conversation-chat",
             ERROR: "error",
-            CHAT_LIST : "chat-list",
+            CHAT_LIST: "chat-list",
+            FRIENDS_COUNT: "friends-count"
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",

@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const SocketService = require('./socketServices');
+const socketService = require('./socketServices');
 
 const indexRouter = require("./routes/index");
 const middleware = require("./middleware/index");
@@ -10,7 +10,7 @@ require("dotenv").config();
 const app = express();
 const server = http.Server(app);
 
-app.set('socketService', SocketService.Initialize(server));
+app.set('socketService', socketService.SocketService.Initialize(server));
 
 app.use(express.json());
 
