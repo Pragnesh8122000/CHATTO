@@ -6,6 +6,7 @@ class AuthController {
     this.messages = require("../messages/auth.messages");
     this.helpers = require("../helpers/helper");
     this.Op = require("sequelize").Op;
+    this.bcrypt = require("bcrypt");
     require("dotenv").config();
   }
   loginUser = async (req, res) => {
@@ -18,11 +19,17 @@ class AuthController {
     } else {
       const { email, password } = req.body;
       try {
-        // if entered email exists
-        let user = await User.findOne({ where: { email, password } });
+        let isValidPassword;
+        // get user using email
+        let user = await User.findOne({ where: { email } });
 
-        // if enter password is wrong
-        if (!user) {
+        // if user exists and password is correct then hash it
+        if (user) {
+          isValidPassword = await this.bcrypt.compare(password, user.password);
+        }
+
+        // if user with email and password does not exist
+        if (!user || !isValidPassword) {
           return res.status(401).send({ message: this.messages.allMessages.LOG_IN_UNAUTHORIZED });
         }
 
@@ -102,6 +109,10 @@ class AuthController {
         if (existingUser) {
           return res.status(401).send({ status: false, message: this.messages.allMessages.USER_ALREADY_EXIST });
         }
+
+        let hashedPassword = password ? await this.bcrypt.hash(password, 10) : null;
+
+        userObj.password = hashedPassword;
 
         // Create new user
         let user = await User.create(userObj);
