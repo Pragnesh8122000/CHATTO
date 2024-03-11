@@ -15,12 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     Friend.init({
+        conversation_id: DataTypes.INTEGER,
         from_user_id: DataTypes.INTEGER,
         to_user_id: DataTypes.INTEGER,
         req_occurrence_count: {
             type: DataTypes.INTEGER,
             defaultValue: 0
-          },
+        },
         status: {
             type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
             defaultValue: 'pending'

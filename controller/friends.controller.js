@@ -79,7 +79,7 @@ class FriendsController {
           ],
           status: this.constants.DATABASE.ENUMS.STATUS.ACCEPTED,
         },
-        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
+        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.TABLE_ATTRIBUTES.FRIENDS.CONVERSATION_ID, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
         include: [
           this.includeUserObj(this.constants.DATABASE.CONNECTION_REF.REQ_FROM),
           this.includeUserObj(this.constants.DATABASE.CONNECTION_REF.REQ_TO)
@@ -136,6 +136,13 @@ class FriendsController {
       try {
         const { user_code } = req.body;
         const { currentUser } = req;
+
+        if (user_code === currentUser.user_code) {
+          return res.status(422).send({
+            status: false,
+            message: this.messages.allMessages.SELF_FRIEND_REQUEST,
+          });
+        }
 
         // Check if receiver exists
         const receiver = await User.findOne({ where: { user_code } });
@@ -244,6 +251,7 @@ class FriendsController {
         const { status } = req.body;
         const { reqId } = req.params;
         let conversation;
+        let updateFriendObj = { status };
 
         // get existing request details
         const existingRequest = await Friend.findOne({ where: { id: reqId } });
@@ -264,17 +272,20 @@ class FriendsController {
           });
         }
 
-        // if request already rejected
-        await Friend.update({ status }, { where: { id: reqId } });
-
-        // message according to status
-        const message = status === this.constants.DATABASE.ENUMS.STATUS.ACCEPTED ? this.messages.allMessages.ACCEPTED_FRIEND_REQUEST : this.messages.allMessages.REJECTED_FRIEND_REQUEST;
-
         // create conversation if status is accepted and conversation does not exist
         if (status === this.constants.DATABASE.ENUMS.STATUS.ACCEPTED) {
           const conversationObj = { isGroupChat: false, conversationParticipantId: existingRequest.from_user_id };
           conversation = await this.helpers.createTwoUserConversation(conversationObj, req.currentUser);
+          // update friend object
+          updateFriendObj.conversation_id = conversation.id;
         }
+        // if request already rejected
+        await Friend.update(updateFriendObj, { where: { id: reqId } });
+
+        // message according to status
+        const message = status === this.constants.DATABASE.ENUMS.STATUS.ACCEPTED ? this.messages.allMessages.ACCEPTED_FRIEND_REQUEST : this.messages.allMessages.REJECTED_FRIEND_REQUEST;
+
+
 
         res.status(200).send({
           status: true,

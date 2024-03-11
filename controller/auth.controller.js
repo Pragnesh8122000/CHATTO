@@ -39,6 +39,7 @@ class AuthController {
             email: user.email,
             user_id: user.id,
             user_name: `${user.first_name} ${user.last_name}`,
+            user_code: user.user_code
           },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME }

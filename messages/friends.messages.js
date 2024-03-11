@@ -15,4 +15,5 @@ exports.allMessages = {
   REJECTED_FRIEND_REQUEST: "Rejected friend request successfully",
   RESPONSE_FRIEND_REQUEST_FAILED: "Failed to response friend request",
   ALREADY_FRIENDS: "You are already friends with this user",
+  SELF_FRIEND_REQUEST: "You can't send friend request to yourself"
 };

@@ -1,4 +1,5 @@
 const { Participant, Chat, Conversation, User } = require("../models");
+let CryptoJS = require("crypto-js");
 const { Op, Sequelize } = require("sequelize")
 class SocketServer {
   constructor() {
@@ -18,12 +19,14 @@ class SocketServer {
           conversation_id: messageObj.conversationId
         }
       })
+      // Encrypt message
+      let cipheredMessage = CryptoJS.AES.encrypt(messageObj.message, `${messageObj.conversationId}`).toString();
 
       // get receiver from users array
       const receiver = users.find((user) => user.user_id === receiverParticipantUID.user_id);
 
       // chat object
-      const chatObj = { conversation_id: messageObj.conversationId, sender_id: user.user_id, content: messageObj.message }
+      const chatObj = { conversation_id: messageObj.conversationId, sender_id: user.user_id, content: cipheredMessage }
 
       // create chat
       await Chat.create(chatObj);

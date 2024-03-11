@@ -62,6 +62,7 @@ module.exports = {
                 CONVERSATION_ID: "conversation_id"
             },
             FRIENDS: {
+                CONVERSATION_ID: "conversation_id",
                 FROM_USER_ID: "from_user_id",
                 TO_USER_ID: "to_user_id",
                 STATUS: "status",
