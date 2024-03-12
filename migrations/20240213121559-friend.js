@@ -25,6 +25,13 @@ module.exports = {
           key: 'id'
         }
       },
+      conversation_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Conversations',
+          key: 'id'
+        },
+      },
       req_occurrence_count: {
         type: Sequelize.INTEGER,
         defaultValue: 0

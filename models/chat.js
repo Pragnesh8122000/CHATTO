@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
 
       // Chat belongs to Conversation
-      this.belongsTo(models.Conversation, { 
+      this.belongsTo(models.Conversation, {
         foreignKey: 'conversation_id',
         as: 'chats'
       });
@@ -27,7 +27,10 @@ module.exports = (sequelize, DataTypes) => {
   Chat.init({
     conversation_id: DataTypes.INTEGER,
     sender_id: DataTypes.INTEGER,
-    content : DataTypes.STRING,
+    content: {
+      type: DataTypes.STRING(10000), // Specify the maximum length of the string
+      allowNull: false, // Optional: set to true if the field can be null
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
   }, {
