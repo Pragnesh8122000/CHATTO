@@ -170,6 +170,7 @@ class FriendsController {
               { from_user_id: receiver.id, to_user_id: currentUser.user_id },
               { from_user_id: currentUser.user_id, to_user_id: receiver.id },
             ],
+            status: this.constants.DATABASE.ENUMS.STATUS.ACCEPTED
           }
         })
 

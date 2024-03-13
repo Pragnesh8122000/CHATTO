@@ -34,7 +34,7 @@ class SocketService {
                     // push the user details into users array
                     users.push({ id: socket.id, user_name, user_id: Number(user_id) });
                     await services.handleGetConversationList(io, socket, users);
-                    console.log("USER JOINED ::: ", users);
+                    // console.log("USER JOINED ::: ", users);
 
                     // listen to message event
                     socket.on(constants.SOCKET.EVENTS.MESSAGE, (messageObj) => services.handleMessageEvent(io, socket, messageObj, users));

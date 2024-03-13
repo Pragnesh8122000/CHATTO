@@ -5,23 +5,23 @@ module.exports = (sequelize, DataTypes) => {
   class Participants extends Model {
     static associate(models) {
       // Participant belongs to Conversation
-      this.belongsTo(models.Conversation, { 
+      this.belongsTo(models.Conversation, {
         foreignKey: 'conversation_id',
         as: 'conversations'
       });
 
       // Participant belongs to Chat
-      this.belongsTo(models.Chat, { 
+      this.belongsTo(models.Chat, {
         foreignKey: 'conversation_id',
         as: 'participant_chat'
       });
 
       // Participant belongs to User
       this.belongsTo(models.User, {
-        foreignKey: 'id',
+        foreignKey: 'user_id',
         as: 'user'
       });
-      
+
     }
   }
   Participants.init({

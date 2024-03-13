@@ -70,7 +70,7 @@ class SocketServer {
       // remove user from users array
       if (currentUserIndex !== -1) {
         users.splice(currentUserIndex, 1);
-        console.log("User disconnected. Remaining users:", users);
+        // console.log("User disconnected. Remaining users:", users);
       }
     } catch (error) {
       console.log(error);
@@ -151,7 +151,7 @@ class SocketServer {
           conversationDetails: {
             id: conversationId
           },
-          user: userDetails.user,
+          user: userDetails?.user,
           chats: chats[0]
         })
       })

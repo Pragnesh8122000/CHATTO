@@ -69,8 +69,9 @@ class ChatController {
       const messageReceiver = await Participant.findAll({
         where: {
           conversation_id: conversationId,
+          user_id: { [Op.ne]: req.currentUser.user_id }
         },
-        attributes: [],
+        // attributes: [],
         include: [{
           model: User,
           attributes: [
@@ -78,9 +79,6 @@ class ChatController {
             this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
             this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
           ],
-          where: {
-            id: { [Op.ne]: req.currentUser.user_id }
-          },
           as: this.constants.DATABASE.CONNECTION_REF.USER
         },
         ],
@@ -91,7 +89,7 @@ class ChatController {
         message: this.messages.allMessages.CHAT_LIST_SUCCESSFULLY,
         chatList,
         conversationId: conversationId,
-        messageReceiver: messageReceiver[0].user ?? {},
+        messageReceiver: messageReceiver[0].user ?? null,
       })
     } catch (error) {
       console.log(error);

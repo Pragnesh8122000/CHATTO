@@ -21,6 +21,7 @@ const sequelize = new Sequelize({
   password: config.password,
   host: config.host,
   port: config.port,
+  logging: false
 });
 // const sequelize = new Sequelize("postgres://root:123@node_db:5432/test-chatto");
 
