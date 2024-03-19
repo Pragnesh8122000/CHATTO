@@ -1,9 +1,12 @@
-const { Conversation, Participant, Chat, User } = require("../models");
+const { Conversation, Participant, Chat, User, Friend } = require("../models");
 const { Op } = require("sequelize");
 class ChatController {
   constructor() {
     this.messages = require("../messages/chat.messages");
     this.constants = require("../helpers/constants");
+    this.validation = require("../validations/chat.validation");
+    this.chatServices = require("../services/chat-services")
+    this.repo = require("../repo/repo");
   }
   getChatRequest = async (req, res) => {
     try {
@@ -96,6 +99,123 @@ class ChatController {
       res.status(500).send({
         message: this.messages.allMessages.CONVERSATION_LIST_ERROR,
       });
+    }
+  }
+
+  createGroup = async (req, res) => {
+    // Validate payload
+    let create_group_validation = this.validation.createGroupValidation.validate(req.body);
+    if (create_group_validation.error) {
+      return res.status(403).send({
+        status: false,
+        message: create_group_validation.error.details[0].message,
+      });
+    } else {
+      const { groupName, description, participants } = req.body;
+
+      const currentUserId = req.currentUser.user_id
+
+      // create group
+      const group = await this.chatServices.createGroup(groupName, description, currentUserId, participants);
+
+      // send response
+      res.status(group.statusCode).send(group.resObj);
+    }
+  }
+
+  addGroupParticipants = async (req, res) => {
+    try {
+      const { conversationId, participants } = req.body;
+
+      const currentUserId = req.currentUser.user_id
+
+      const participantsLength = participants.length
+
+      // verify if all participants exist in user table and all are friends of group creator
+      const verifyAllParticipants = await this.chatServices.verifyAllParticipants(participants, participantsLength, currentUserId);
+
+      if (!verifyAllParticipants.status) {
+        return res.status(422).send({
+          message: verifyAllParticipants.message,
+          status: false
+        })
+      }
+
+      await this.chatServices.addParticipantsRecords(participants, participantsLength, conversationId)
+      // let participantsArray = [];
+
+      // // check if users exist in user model
+      // const participantExist = await User.count({
+      //   where: {
+      //     id: { [Op.in]: participants },
+      //   },
+      // })
+
+      // // If any participant is not found
+      // if (participantExist !== participants.length) {
+      //   return res.status(500).send({
+      //     message: this.messages.allMessages.GROUP_USER_NOT_EXIST
+      //   })
+      // }
+
+      // // create participant object and add it in participants array
+      // for (let participant = 0; participant < participants.length; participant++) {
+      //   // new participant object
+      //   const participantObj = {
+      //     user_id: participants[participant],
+      //     conversation_id: conversationId,
+      //   };
+
+      //   // add new participant in participants array
+      //   participantsArray.push(participantObj);
+      // }
+
+      // // create new participants
+      // await Participant.bulkCreate(participantsArray);
+
+      res.send({
+        status: true,
+        message: this.messages.allMessages.PARTICIPANT_ADDED_SUCCESSFULLY,
+      });
+    }
+    catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: this.messages.allMessages.ADD_PARTICIPANT_FAILED,
+      });
+    }
+  }
+
+  renameGroup = async (req, res) => {
+    // Validate payload
+    let rename_group_validation = this.validation.renameGroupValidation.validate(req.body);
+    if (rename_group_validation.error) {
+      return res.status(403).send({
+        status: false,
+        message: rename_group_validation.error.details[0].message,
+      });
+    } else {
+      const { conversationId, newGroupName } = req.body;
+
+      const renameGroup = await this.chatServices.renameGroup(conversationId, newGroupName)
+      return res.status(renameGroup.statusCode).send(renameGroup.resObj);
+    }
+  }
+
+  removeParticipants = async (req, res) => {
+    // Validate payload
+    let remove_participants_validation = this.validation.removeParticipantsValidation.validate(req.body);
+    if (remove_participants_validation.error) {
+      return res.status(403).send({
+        status: false,
+        message: remove_participants_validation.error.details[0].message,
+      });
+    } else {
+      const { conversationId, participants } = req.body;
+
+      const currentUserId = req.currentUser.user_id
+
+      const removeParticipants = await this.chatServices.removeParticipants(conversationId, participants, currentUserId)
     }
   }
 }

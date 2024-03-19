@@ -22,5 +22,13 @@
     "port": "5432",
     "host": "localhost",
     "dialect": "postgres"
+  },
+  "render": {
+    "username": "root",
+    "password": "HtQZ1Yfwma57DlOaOx8ZwoRz5nwSCOOl",
+    "database": "chatto_render",
+    "port": "5432",
+    "host": "dpg-cnsj6tda73kc73b54so0-a",
+    "dialect": "postgres"
   }
 }
