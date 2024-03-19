@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "seed:admin-user": "node seeders/seed.js user",
     "update:add-friend-req-occurrence-count-field": "node seeders/seed.js add-friend-req-occurrence-count",
     "seed:department": "node seeders/seed.js department",
