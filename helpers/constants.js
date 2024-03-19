@@ -9,7 +9,8 @@ module.exports = {
             GET_SINGLE_CONVERSATION_CHAT: "get-single-conversation-chat",
             ERROR: "error",
             CHAT_LIST: "chat-list",
-            FRIENDS_COUNT: "friends-count"
+            FRIENDS_COUNT: "friends-count",
+            MESSAGE_NOTIFICATION : "message-notification"
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",

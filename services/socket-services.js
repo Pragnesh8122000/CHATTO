@@ -48,7 +48,14 @@ class SocketServer {
 
       // emit to user if receiver is online
       if (receiver) {
+        const newMessageObj = {
+          conversationId: messageObj.conversationId,
+          senderId: user.user_id,
+          username: user.user_name,
+          content: messageObj.message
+        }
         io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.CHAT_LIST, { chat: chatList });
+        io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.MESSAGE_NOTIFICATION, { message: newMessageObj });
       }
 
       // emit to logged-in user

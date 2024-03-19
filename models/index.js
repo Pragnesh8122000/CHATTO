@@ -7,8 +7,8 @@ const { Client } = require("pg")
 const process = require('process');
 const basename = path.basename(__filename);
 require("dotenv").config()
-const env = process.env.DB_ENV || "development-docker";
-const config = require(__dirname + '/../config/config.json')[env];
+const env = process.env.DB_ENV;
+const config = require("../config/config.json")[env];
 const db = {};
 // let sequelize;
 // sequelize = new Sequelize(config.database, config.username, config.password, config);
@@ -21,6 +21,12 @@ const sequelize = new Sequelize({
   password: config.password,
   host: config.host,
   port: config.port,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
   logging: false
 });
 // const sequelize = new Sequelize("postgres://root:123@node_db:5432/test-chatto");

@@ -28,7 +28,13 @@
     "password": "HtQZ1Yfwma57DlOaOx8ZwoRz5nwSCOOl",
     "database": "chatto_render",
     "port": "5432",
-    "host": "dpg-cnsj6tda73kc73b54so0-a",
+    "host": "dpg-cnsj6tda73kc73b54so0-a.singapore-postgres.render.com",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    },
     "dialect": "postgres"
   }
 }
