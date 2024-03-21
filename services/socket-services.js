@@ -44,22 +44,27 @@ class SocketServer {
             this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
           ],
         },
+        order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC]],
+        limit: 1
       });
 
       // emit to user if receiver is online
       if (receiver) {
+
         const newMessageObj = {
           conversationId: messageObj.conversationId,
           senderId: user.user_id,
           username: user.user_name,
           content: messageObj.message
         }
-        io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.CHAT_LIST, { chat: chatList });
+        // io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
+        io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0] });
         io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.MESSAGE_NOTIFICATION, { message: newMessageObj });
       }
 
       // emit to logged-in user
-      io.to(user.id).emit(this.constants.SOCKET.EVENTS.CHAT_LIST, { chat: chatList });
+      // io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
+      io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0] });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {

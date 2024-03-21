@@ -10,7 +10,8 @@ module.exports = {
             ERROR: "error",
             CHAT_LIST: "chat-list",
             FRIENDS_COUNT: "friends-count",
-            MESSAGE_NOTIFICATION : "message-notification"
+            MESSAGE_NOTIFICATION : "message-notification",
+            LAST_CHAT : "last-chat"
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",
