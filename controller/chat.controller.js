@@ -48,13 +48,20 @@ class ChatController {
 
   getSingleConversationChats = async (req, res) => {
     try {
-      const { conversationId } = req.query;
+      let { conversationId, limit, skip } = req.query;
+      limit = limit ? Number(limit) : 30;
+      skip = skip ? Number(skip) : 0;
+      const totalChatCount = await Chat.count({
+        where: {
+          conversation_id: conversationId
+        }
+      })
       // const user = users.find((user) => user.socket_id === socket.id);
       const chatList = await Chat.findAll({
         where: {
           conversation_id: conversationId
         },
-        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
+        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
         include: [{
           model: User,
           as: this.constants.DATABASE.CONNECTION_REF.SENDER,
@@ -65,7 +72,9 @@ class ChatController {
           ],
         },
         ],
-        order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.ASC]],
+        order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC]],
+        offset: skip,
+        limit: limit,
       });
 
       // get message receiver
@@ -91,6 +100,7 @@ class ChatController {
         status: true,
         message: this.messages.allMessages.CHAT_LIST_SUCCESSFULLY,
         chatList,
+        totalChatCount: totalChatCount,
         conversationId: conversationId,
         messageReceiver: messageReceiver[0].user ?? null,
       })
