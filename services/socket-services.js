@@ -55,7 +55,7 @@ class SocketServer {
           conversationId: messageObj.conversationId,
           senderId: user.user_id,
           username: user.user_name,
-          content: messageObj.message
+          content: cipheredMessage
         }
         // io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
         io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0] });
