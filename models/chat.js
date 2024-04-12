@@ -22,6 +22,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'conversation_id',
         as: 'participant_chat'
       });
+
+      // relation with ChatRead
+      this.hasMany(models.ChatRead, {
+        foreignKey: 'chat_id',
+        as: 'chat_read'
+      })
     }
   }
   Chat.init({

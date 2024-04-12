@@ -1,4 +1,4 @@
-const { Conversation, Participant, Chat, User, Friend } = require("../models");
+const { Conversation, Participant, Chat, User, Friend, ChatRead } = require("../models");
 const { Op } = require("sequelize");
 class ChatController {
   constructor() {
@@ -51,13 +51,9 @@ class ChatController {
       let { conversationId, limit, skip } = req.query;
       limit = limit ? Number(limit) : 30;
       skip = skip ? Number(skip) : 0;
-      const totalChatCount = await Chat.count({
-        where: {
-          conversation_id: conversationId
-        }
-      })
-      // const user = users.find((user) => user.socket_id === socket.id);
-      const chatList = await Chat.findAll({
+
+      // get the conversation by conversation id
+      const filteredChats = await Chat.findAll({
         where: {
           conversation_id: conversationId
         },
@@ -75,6 +71,24 @@ class ChatController {
         order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC]],
         offset: skip,
         limit: limit,
+      });
+
+      // get all chat of the conversation
+      const chatList = await Chat.findAll({
+        where: {
+          conversation_id: conversationId
+        },
+        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
+        // include: [{
+        //   model: User,
+        //   as: this.constants.DATABASE.CONNECTION_REF.SENDER,
+        //   attributes: [
+        //     this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
+        //     this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
+        //     this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+        //   ],
+        // },
+        // ],
       });
 
       // get message receiver
@@ -96,11 +110,37 @@ class ChatController {
         ],
       })
 
+      const chatReadArray = [];
+
+      for (let i = 0; i < chatList.length; i++) {
+        const chat = chatList[i];
+        const existingReadChatRecord = await ChatRead.findOne({
+          where: {
+            chat_id: chat.id
+          }
+        });
+
+        if (existingReadChatRecord) continue; // Skip to next iteration
+
+        chatReadArray.push({
+          conversation_id: Number(conversationId),
+          chat_id: chat.id,
+          user_id: messageReceiver[0].user_id,
+          participant_id: messageReceiver[0].id,
+          read_timestamp: new Date()
+        });
+      }
+
+      if (chatReadArray.length) {
+        await ChatRead.bulkCreate(chatReadArray);
+      }
+
+
       res.status(200).send({
         status: true,
         message: this.messages.allMessages.CHAT_LIST_SUCCESSFULLY,
-        chatList,
-        totalChatCount: totalChatCount,
+        chatList: filteredChats,
+        totalChatCount: chatList.length,
         conversationId: conversationId,
         messageReceiver: messageReceiver[0].user ?? null,
       })

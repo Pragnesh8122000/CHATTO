@@ -34,6 +34,14 @@ module.exports = {
           key: 'id'
         }
       },
+      participant_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Participants',
+          key: 'id'
+        }
+      },
       read_timestamp: {
         allowNull: false,
         type: Sequelize.DATE,

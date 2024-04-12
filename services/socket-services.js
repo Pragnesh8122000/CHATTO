@@ -1,4 +1,4 @@
-const { Participant, Chat, Conversation, User } = require("../models");
+const { Participant, Chat, Conversation, User, ChatRead } = require("../models");
 let CryptoJS = require("crypto-js");
 const { Op, Sequelize } = require("sequelize")
 class SocketServer {
@@ -48,6 +48,8 @@ class SocketServer {
         limit: 1
       });
 
+      const unreadMessagesCount = await this.getUnreadMessages(messageObj.conversationId);
+
       // emit to user if receiver is online
       if (receiver) {
 
@@ -55,16 +57,17 @@ class SocketServer {
           conversationId: messageObj.conversationId,
           senderId: user.user_id,
           username: user.user_name,
-          content: cipheredMessage
+          content: cipheredMessage,
+          unread_messages_count : unreadMessagesCount,
+          createdAt: new Date()
         }
         // io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
-        io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0] });
+        io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count : unreadMessagesCount });
         io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.MESSAGE_NOTIFICATION, { message: newMessageObj });
       }
 
       // emit to logged-in user
-      // io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
-      io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0] });
+      io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count : unreadMessagesCount });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
@@ -158,13 +161,17 @@ class SocketServer {
           attributes: [],
         });
 
+        // get unread messages
+        const unreadMessages = await this.getUnreadMessages(conversationId, user.user_id);
+
         // push conversation details
         conversationsData.push({
           conversationDetails: {
             id: conversationId
           },
           user: userDetails?.user,
-          chats: chats[0]
+          chats: chats[0],
+          unreadMessages
         })
       })
 
@@ -295,6 +302,26 @@ class SocketServer {
       conversation_creator_id: user.user_id
     }
     await Conversation.create(conversationRecordObj);
+  }
+
+  async getUnreadMessages(conversationId, userId) {
+    const getCountObj = {
+      where: {
+        conversation_id: conversationId,
+        '$chat_read.chat_id$': { [Op.is]: null },
+        // sender_id: { [Op.ne]: userId }
+      },
+      include: [{
+        model: ChatRead,
+        as: 'chat_read',
+        attributes: [],
+        required: false
+      }]
+    };
+    if (userId) {
+      getCountObj.where.sender_id = { [Op.ne]: userId }
+    }
+    return Chat.count(getCountObj);
   }
 
 }
