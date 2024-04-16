@@ -11,7 +11,8 @@ module.exports = {
             CHAT_LIST: "chat-list",
             FRIENDS_COUNT: "friends-count",
             MESSAGE_NOTIFICATION : "message-notification",
-            LAST_CHAT : "last-chat"
+            LAST_CHAT : "last-chat",
+            READ_CHAT : "read-chat"
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",
@@ -21,7 +22,8 @@ module.exports = {
             READ_SESSION_ERROR: "read-session-error",
             DISCONNECTION_ERROR: "disconnect-error",
             CONVERSATION_LIST_ERROR: "get-conversation-list-error",
-            TOKEN_NOT_FOUND: "token-not-found"
+            TOKEN_NOT_FOUND: "token-not-found",
+            READ_MESSAGE_ERROR : "read-message-error"
         },
     },
     DATABASE: {
@@ -69,6 +71,13 @@ module.exports = {
                 TO_USER_ID: "to_user_id",
                 STATUS: "status",
                 REQ_OCCURRENCE_COUNT: "req_occurrence_count"
+            },
+            CHAT_READ: {
+                CONVERSATION_ID: "conversation_id",
+                CHAT_ID: "chat_id",
+                USER_ID: "user_id",
+                PARTICIPANT_ID: "participant_id",
+                READ_TIMESTAMP: "read_timestamp"
             }
         },
         CONNECTION_REF: {

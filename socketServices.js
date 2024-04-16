@@ -42,8 +42,8 @@ class SocketService {
                     // listen to get conversation list event
                     socket.on(constants.SOCKET.EVENTS.CONVERSATION_LIST, () => services.handleGetConversationList(io, socket, users));
 
-                    // listen to get chat list
-                    socket.on(constants.SOCKET.EVENTS.GET_SINGLE_CONVERSATION_CHAT, (conversationObj) => services.handleGetChatList(io, socket, users, conversationObj));
+                    // listen to get conversation list event
+                    socket.on(constants.SOCKET.EVENTS.READ_CHAT, (conversationObj) => services.handleReadConversation(io, socket, users, conversationObj));
 
                     // listen to disconnection event
                     socket.on(constants.SOCKET.EVENTS.DISCONNECT, () => services.handleDisconnectEvent(io, socket, users));

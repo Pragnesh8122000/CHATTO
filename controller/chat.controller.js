@@ -79,16 +79,6 @@ class ChatController {
           conversation_id: conversationId
         },
         attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID, this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
-        // include: [{
-        //   model: User,
-        //   as: this.constants.DATABASE.CONNECTION_REF.SENDER,
-        //   attributes: [
-        //     this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
-        //     this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
-        //     this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
-        //   ],
-        // },
-        // ],
       });
 
       // get message receiver
@@ -110,27 +100,44 @@ class ChatController {
         ],
       })
 
-      const chatReadArray = [];
+      // get message receiver
+      const userParticipant = await Participant.findAll({
+        where: {
+          conversation_id: conversationId,
+          user_id: req.currentUser.user_id 
+        },
+        // attributes: [],
+        include: [{
+          model: User,
+          attributes: [
+            this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
+            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
+            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+          ],
+          as: this.constants.DATABASE.CONNECTION_REF.USER
+        },
+        ],
+      })
 
+      const chatReadArray = [];
       for (let i = 0; i < chatList.length; i++) {
         const chat = chatList[i];
         const existingReadChatRecord = await ChatRead.findOne({
           where: {
-            chat_id: chat.id
+            chat_id: chat.id,
+            user_id: req.currentUser.user_id
           }
-        });
-
+        }); 
         if (existingReadChatRecord) continue; // Skip to next iteration
 
         chatReadArray.push({
           conversation_id: Number(conversationId),
           chat_id: chat.id,
-          user_id: messageReceiver[0].user_id,
-          participant_id: messageReceiver[0].id,
+          user_id: userParticipant[0].user_id,
+          participant_id: userParticipant[0].id,
           read_timestamp: new Date()
         });
       }
-
       if (chatReadArray.length) {
         await ChatRead.bulkCreate(chatReadArray);
       }

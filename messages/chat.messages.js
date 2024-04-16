@@ -13,5 +13,6 @@ exports.allMessages = {
   RENAMED_GROUP_SUCCESSFULLY: "Group renamed successfully",
   RENAME_GROUP_FAILED: "Group rename failed",
   REMOVE_PARTICIPANT_SUCCESSFULLY: "Participant removed successfully",
-  REMOVE_PARTICIPANT_FAILED: "Participant remove failed"
+  REMOVE_PARTICIPANT_FAILED: "Participant remove failed",
+  READ_MESSAGE : "Read message successfully"
 };

@@ -13,6 +13,13 @@ class SocketServer {
       // get active user from users array
       const user = users.find((user) => user.id === socket.id);
 
+      // const userParticipant = await Participant.findOne({
+      //   where: {
+      //     user_id: user.user_id,
+      //     conversation_id: messageObj.conversationId
+      //   }
+      // })
+
       const receiverParticipantUID = await Participant.findOne({
         where: {
           user_id: { [Op.ne]: user.user_id },
@@ -29,7 +36,9 @@ class SocketServer {
       const chatObj = { conversation_id: messageObj.conversationId, sender_id: user.user_id, content: cipheredMessage }
 
       // create chat
-      await Chat.create(chatObj);
+      let chat = await Chat.create(chatObj);
+
+      // let newChatRead = await ChatRead.create(chatReadObj);
 
       const chatList = await Chat.findAll({
         where: {
@@ -48,7 +57,8 @@ class SocketServer {
         limit: 1
       });
 
-      const unreadMessagesCount = await this.getUnreadMessages(messageObj.conversationId);
+      const receiversUnreadMessages = await this.getUnreadMessages(messageObj.conversationId, receiver.user_id);
+      const OwnUnreadMessages = await this.getUnreadMessages(messageObj.conversationId, user.user_id);
 
       // emit to user if receiver is online
       if (receiver) {
@@ -58,16 +68,16 @@ class SocketServer {
           senderId: user.user_id,
           username: user.user_name,
           content: cipheredMessage,
-          unread_messages_count : unreadMessagesCount,
+          unread_messages_count: receiversUnreadMessages.length,
           createdAt: new Date()
         }
         // io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.CHAT_LIST}-${messageObj.conversationId}`, { chat: chatList });
-        io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count : unreadMessagesCount });
+        io.to(receiver.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count: receiversUnreadMessages.length });
         io.to(receiver.id).emit(this.constants.SOCKET.EVENTS.MESSAGE_NOTIFICATION, { message: newMessageObj });
       }
 
       // emit to logged-in user
-      io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count : unreadMessagesCount });
+      io.to(user.id).emit(`${this.constants.SOCKET.EVENTS.LAST_CHAT}-${messageObj.conversationId}`, { last_chat: chatList[0], unread_messages_count: OwnUnreadMessages.length });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
@@ -85,7 +95,6 @@ class SocketServer {
       // remove user from users array
       if (currentUserIndex !== -1) {
         users.splice(currentUserIndex, 1);
-        // console.log("User disconnected. Remaining users:", users);
       }
     } catch (error) {
       console.log(error);
@@ -171,7 +180,7 @@ class SocketServer {
           },
           user: userDetails?.user,
           chats: chats[0],
-          unreadMessages
+          unreadMessages: unreadMessages.length
         })
       })
 
@@ -182,6 +191,54 @@ class SocketServer {
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
         message: this.messages.allMessages.CONVERSATION_LIST_ERROR,
         type: this.constants.SOCKET.ERROR_TYPE.CONVERSATION_LIST_ERROR
+      });
+    }
+  }
+
+  async handleReadConversation(io, socket, users, conversationObj) {
+    try {
+      const user = users.find((user) => user.id === socket.id);
+      const conversationId = conversationObj.conversationId;
+
+      // get unread messages
+      const UnreadChatList = await this.getUnreadMessages(conversationObj.conversationId, user.user_id);
+
+      // get message receiver
+      const userParticipant = await Participant.findOne({
+        where: {
+          user_id: user.user_id,
+          conversation_id: conversationId
+        }
+      })
+      const chatReadArray = [];
+
+      for (let i = 0; i < UnreadChatList.length; i++) {
+        const chat = UnreadChatList[i];
+        const existingReadChatRecord = await ChatRead.findOne({
+          where: {
+            chat_id: chat.id,
+            participant_id: userParticipant.id
+          }
+        });
+
+        if (existingReadChatRecord) continue; // Skip to next iteration
+
+        chatReadArray.push({
+          conversation_id: Number(conversationObj.conversationId),
+          chat_id: chat.id,
+          user_id: user.user_id,
+          participant_id: userParticipant.id,
+          read_timestamp: new Date()
+        });
+      }
+      if (chatReadArray.length) {
+        await ChatRead.bulkCreate(chatReadArray);
+      }
+    } catch (error) {
+      console.log(error);
+      io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
+        message: this.messages.allMessages.READ_MESSAGE,
+        type: this.constants.SOCKET.ERROR_TYPE.READ_MESSAGE_ERROR
       });
     }
   }
@@ -199,36 +256,6 @@ class SocketServer {
         await this.createGroupConversation(conversationObj, user);
         return;
       }
-    } catch (error) {
-      console.log(error);
-      io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
-        message: this.messages.allMessages.CONVERSATION_LIST_ERROR,
-        type: this.constants.SOCKET.ERROR_TYPE.CONVERSATION_LIST_ERROR
-      });
-    }
-  }
-
-  // handle get single conversation chat list
-  async handleGetChatList(io, socket, conversation) {
-    try {
-      // const user = users.find((user) => user.socket_id === socket.id);
-      const chatList = await Chat.findAll({
-        where: {
-          conversation_id: conversation.conversationId
-        },
-        attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT.CONTENT, this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT],
-        include: {
-          model: User,
-          as: this.constants.DATABASE.CONNECTION_REF.SENDER,
-          attributes: [
-            this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
-            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
-            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
-          ],
-        },
-        order: [[this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.CREATED_AT, this.constants.DATABASE.COMMON_QUERY.ORDER.DESC]],
-      })
-      io.to(socket.id).emit(this.constants.SOCKET.EVENTS.GET_SINGLE_CONVERSATION_CHAT, { chats: chatList });
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
@@ -305,23 +332,62 @@ class SocketServer {
   }
 
   async getUnreadMessages(conversationId, userId) {
-    const getCountObj = {
+    // const getUnreadChatObj = {
+    //   where: {
+    //     conversation_id: conversationId,
+    //     '$chat_read.chat_id$': { [Op.is]: null },
+    //     sender_id: { [Op.ne]: userId }
+    //   },
+    //   include: [{
+    //     model: ChatRead,
+    //     as: 'chat_read',
+    //     attributes: [this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID],
+    //     required: false
+    //   }]
+    // };
+    // let unreadChats = await Chat.findAll(getUnreadChatObj);
+    // return unreadChats || [];
+
+
+    // // get all read chats
+    // const getAllReadChats = await ChatRead.findAll({
+    //   where : {
+    //     conversation_id : conversationId,
+    //     user_id : userId
+    //   },
+    //   attributes : [this.constants.DATABASE.TABLE_ATTRIBUTES.CHAT_READ.CHAT_ID],
+    // })
+
+    // // get all read chat ids in array
+    // const chatIds = getAllReadChats.map((chat) => chat.chat_id)
+
+    // // get all unread chats
+    // const unreadChats = await Chat.findAll({
+    //   where : {
+    //     id : {
+    //       [Op.notIn] : chatIds
+    //     },
+    //     conversation_id : conversationId
+    //   }
+    // })
+
+    const unreadChats = await Chat.findAll({
       where: {
         conversation_id: conversationId,
-        '$chat_read.chat_id$': { [Op.is]: null },
-        // sender_id: { [Op.ne]: userId }
+        '$chat_read.id$': null
       },
       include: [{
         model: ChatRead,
-        as: 'chat_read',
         attributes: [],
-        required: false
+        where: {
+          user_id: userId
+        },
+        required: false,
+        as : 'chat_read'
       }]
-    };
-    if (userId) {
-      getCountObj.where.sender_id = { [Op.ne]: userId }
-    }
-    return Chat.count(getCountObj);
+    });
+
+    return unreadChats || [];
   }
 
 }
