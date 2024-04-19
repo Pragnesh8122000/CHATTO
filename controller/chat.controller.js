@@ -121,7 +121,7 @@ class ChatController extends BaseController {
         ],
       })
 
-      if (skip = 0) {
+      if (skip === 0) {
         const chatReadArray = [];
         for (let i = 0; i < chatList.length; i++) {
           const chat = chatList[i];
