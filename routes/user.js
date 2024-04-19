@@ -6,12 +6,13 @@ class UserRouter {
     }
   
     setRoutes() {
-      this.router.get("/user/list", this.userController.getUserList);
-      this.router.get("/user/department/list", this.userController.getUserByDeptList);
-      this.router.get("/user/:id", this.userController.getSingleUser);
-      this.router.post("/user", this.userController.insertUser);
-      this.router.put("/user/:id", this.userController.updateUser);
-      this.router.delete("/user/:id", this.userController.deleteUser);
+      this.router.get("/users/list", this.userController.getUserList);
+      this.router.get("/users/department/list", this.userController.getUserByDeptList);
+      this.router.get("/users/:id", this.userController.getSingleUser);
+      this.router.post("/users", this.userController.insertUser);
+      this.router.put("/users/:id", this.userController.updateUser);
+      this.router.delete("/users/:id", this.userController.deleteUser);
+      this.router.put("/users/status/:id", this.userController.UpdateUserStatus);
     }
   }
   

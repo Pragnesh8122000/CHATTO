@@ -1,9 +1,9 @@
-/** @format */
-
+const BaseController = require("../controller/base.controller");
 const { User, Department } = require("./../models");
 const { Op } = require("sequelize");
-class UserController {
+class UserController extends BaseController {
   constructor() {
+    super();
     this.validation = require("../validations/users.validation");
     this.departmentValidation = require("../validations/department.validation");
     this.messages = require("../messages/user.messages");
@@ -255,6 +255,16 @@ class UserController {
       console.log(error);
       res.send({ message: this.messages.allMessages.DELETE_USER_FAILED });
     }
+  };
+
+  UpdateUserStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updateUser = await this.userServices.updateUserStatus(id, status);
+    res.status(updateUser.statusCode).send({
+      status: updateUser.resObj.status,
+      message: updateUser.resObj.message
+    })
   };
 }
 

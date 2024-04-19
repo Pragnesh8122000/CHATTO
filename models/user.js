@@ -31,7 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     department_id: DataTypes.INTEGER,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
-    user_code : DataTypes.STRING
+    user_code : DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'deleted'),
+      defaultValue: 'inactive',
+      allowNull: false
+  },
   }, {
     sequelize,
     modelName: 'User',

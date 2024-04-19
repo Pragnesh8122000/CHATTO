@@ -12,7 +12,9 @@ module.exports = {
             FRIENDS_COUNT: "friends-count",
             MESSAGE_NOTIFICATION : "message-notification",
             LAST_CHAT : "last-chat",
-            READ_CHAT : "read-chat"
+            READ_CHAT : "read-chat",
+            ACTIVITY_CHANGE : "activity-changes"
+
         },
         ERROR_TYPE: {
             USER_ALREADY_EXIST: "user-exist-error",
@@ -46,7 +48,8 @@ module.exports = {
                 EMAIL: "email",
                 DEPARTMENT_ID: "department_id",
                 PASSWORD: "password",
-                USER_CODE: "user_code"
+                USER_CODE: "user_code",
+                STATUS: "status",
             },
             DEPARTMENT: {
                 DEPARTMENT_NAME: "department_name",
@@ -102,10 +105,15 @@ module.exports = {
             }
         },
         ENUMS: {
-            STATUS: {
+            FRIEND_REQ_STATUS: {
                 ACCEPTED: "accepted",
                 PENDING: "pending",
                 REJECTED: "rejected"
+            },
+            USER_STATUS : {
+                ACTIVE : "active",
+                INACTIVE : "inactive",
+                DELETED : "deleted"
             }
         }
     }

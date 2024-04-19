@@ -136,6 +136,39 @@ class ChatServices {
             }
         }
     }
+
+    updateUserStatus = async (user_id, status) => {
+        try {
+            // get user
+            const user = await this.repo.userRepo.getUserById(user_id);
+            if (!user) {
+                return {
+                    statusCode: 404,
+                    resObj: {
+                        status: false,
+                        message: this.messages.allMessages.USER_NOT_EXIST
+                    }
+                }
+            }
+            await this.repo.userRepo.updateUserStatus(user_id, status);
+            return {
+                statusCode: 200,
+                resObj: {
+                    status: true,
+                    message: this.messages.allMessages.UPDATE_USER_STATUS_SUCCESS
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            return {
+                statusCode: 500,
+                resObj: {
+                    status: false,
+                    message: this.messages.allMessages.UPDATE_USER_STATUS_FAILED
+                }
+            }
+        }
+    }
 }
 
 module.exports = new ChatServices()

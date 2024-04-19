@@ -9,5 +9,8 @@ exports.allMessages = {
   SIGN_UP_SUCCESS: "Sign up successfully",
   SIGN_UP_FAILED: "Sign up failed",
   DEPARTMENT_NOT_EXIST: "Department does not exist",
-  USER_ALREADY_EXIST: "User already exist"
+  USER_ALREADY_EXIST: "User already exist",
+  UPDATE_USER_STATUS_SUCCESS : "User status updated successfully",
+  UPDATE_USER_STATUS_FAILED : "User status update failed",
+  SEND_ACTIVE_NOTIFICATION_SUCCESS : "Active notification sent successfully",
 };

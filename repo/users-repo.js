@@ -9,6 +9,10 @@ class UserRepo {
         return await User.findOne({ where: { email } })
     }
 
+    getUserById = async (user_id) => {
+        return await User.findOne({ where: { id: user_id } })
+    }
+
     getDeptByName = async (department_name) => {
         return await Department.findOne({ where: { department_name, } })
     }
@@ -26,6 +30,10 @@ class UserRepo {
 
     createUser = async (userObj) => {
         return await User.create(userObj)
+    }
+
+    updateUserStatus = async (user_id, status) => {
+        return await User.update({ status }, { where: { id : user_id } })
     }
 }
 module.exports = UserRepo

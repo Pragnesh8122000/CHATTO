@@ -1,7 +1,9 @@
+const BaseController = require("../controller/base.controller");
 const { Conversation, Participant, Chat, User, Friend, ChatRead } = require("../models");
 const { Op } = require("sequelize");
-class ChatController {
+class ChatController extends BaseController {
   constructor() {
+    super();
     this.messages = require("../messages/chat.messages");
     this.constants = require("../helpers/constants");
     this.validation = require("../validations/chat.validation");
@@ -104,7 +106,7 @@ class ChatController {
       const userParticipant = await Participant.findAll({
         where: {
           conversation_id: conversationId,
-          user_id: req.currentUser.user_id 
+          user_id: req.currentUser.user_id
         },
         // attributes: [],
         include: [{
@@ -119,27 +121,29 @@ class ChatController {
         ],
       })
 
-      const chatReadArray = [];
-      for (let i = 0; i < chatList.length; i++) {
-        const chat = chatList[i];
-        const existingReadChatRecord = await ChatRead.findOne({
-          where: {
-            chat_id: chat.id,
-            user_id: req.currentUser.user_id
-          }
-        }); 
-        if (existingReadChatRecord) continue; // Skip to next iteration
+      if (skip = 0) {
+        const chatReadArray = [];
+        for (let i = 0; i < chatList.length; i++) {
+          const chat = chatList[i];
+          const existingReadChatRecord = await ChatRead.findOne({
+            where: {
+              chat_id: chat.id,
+              user_id: req.currentUser.user_id
+            }
+          });
+          if (existingReadChatRecord) continue; // Skip to next iteration
 
-        chatReadArray.push({
-          conversation_id: Number(conversationId),
-          chat_id: chat.id,
-          user_id: userParticipant[0].user_id,
-          participant_id: userParticipant[0].id,
-          read_timestamp: new Date()
-        });
-      }
-      if (chatReadArray.length) {
-        await ChatRead.bulkCreate(chatReadArray);
+          chatReadArray.push({
+            conversation_id: Number(conversationId),
+            chat_id: chat.id,
+            user_id: userParticipant[0].user_id,
+            participant_id: userParticipant[0].id,
+            read_timestamp: new Date()
+          });
+        }
+        if (chatReadArray.length) {
+          await ChatRead.bulkCreate(chatReadArray);
+        }
       }
 
 

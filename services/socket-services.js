@@ -1,10 +1,13 @@
 const { Participant, Chat, Conversation, User, ChatRead } = require("../models");
 let CryptoJS = require("crypto-js");
 const { Op, Sequelize } = require("sequelize")
+
 class SocketServer {
   constructor() {
     this.constants = require("../helpers/constants");
     this.messages = require("../messages/chat.messages");
+    this.userServices = require("./user.services")
+    this.repo = require("../repo/repo");
   }
 
   // handle conversation messages
@@ -57,12 +60,12 @@ class SocketServer {
         limit: 1
       });
 
-      const receiversUnreadMessages = await this.getUnreadMessages(messageObj.conversationId, receiver.user_id);
       const OwnUnreadMessages = await this.getUnreadMessages(messageObj.conversationId, user.user_id);
 
       // emit to user if receiver is online
       if (receiver) {
 
+        const receiversUnreadMessages = await this.getUnreadMessages(messageObj.conversationId, receiver.user_id);
         const newMessageObj = {
           conversationId: messageObj.conversationId,
           senderId: user.user_id,
@@ -91,11 +94,22 @@ class SocketServer {
     try {
       // get active user from users array
       const currentUserIndex = users.findIndex((user) => user.id === socket.id);
+      const user = users[currentUserIndex]
+      const userId = user.user_id;
+
+      // send active notification to all friends
+      await this.SendActivityNotification(io, socket, users, userId, this.constants.DATABASE.ENUMS.USER_STATUS.INACTIVE);
 
       // remove user from users array
       if (currentUserIndex !== -1) {
         users.splice(currentUserIndex, 1);
       }
+
+      // make user status inactive
+      await this.userServices.updateUserStatus(userId, this.constants.DATABASE.ENUMS.USER_STATUS.INACTIVE);
+
+      // send active notification to all friends
+      await this.SendActivityNotification(io, socket, users, userId);
     } catch (error) {
       console.log(error);
       io.to(socket.id).emit(this.constants.SOCKET.EVENTS.ERROR, {
@@ -157,7 +171,8 @@ class SocketServer {
               attributes: [
                 this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
                 this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
-                this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+                this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME,
+                this.constants.DATABASE.TABLE_ATTRIBUTES.USER.STATUS
               ],
               as: this.constants.DATABASE.CONNECTION_REF.USER,
               where: {
@@ -383,12 +398,58 @@ class SocketServer {
           user_id: userId
         },
         required: false,
-        as : 'chat_read'
+        as: 'chat_read'
       }]
     });
 
     return unreadChats || [];
   }
+
+  async SendActivityNotification(io, socket, users, user_id, status) {
+    try {
+      const user = users.find((user) => user.id === socket.id);
+      const userFriends = await this.repo.friendsRepo.getUserFriends(user_id);
+
+      const filteredFriends = userFriends.map(friend => {
+        // Check for user ID match in either req_from or req_to
+        if (user && friend.req_to.id === user.user_id) {
+          // Keep all properties and return req_from
+          // get friend without req_to
+          friend = friend.get({ plain: true });
+          let receiverUser = friend.req_from;
+          delete friend.req_to;
+          delete friend.req_from;
+          return receiverUser.id;
+
+        } else if (user && friend.req_from.id === user.user_id) {
+          // Keep all properties and return req_to
+          friend = friend.get({ plain: true });
+          let receiverUser = friend.req_to;
+          delete friend.req_from;
+          delete friend.req_to;
+          return receiverUser.id;
+        } else {
+          // No match, remove the entire friend object
+          return null;
+        }
+      })
+      // get online friends from users array
+      const onlineFriends = users.filter(user => filteredFriends.some(friendId => user.user_id === friendId));
+      if (onlineFriends.length > 0) {
+        for (let i = 0; i < onlineFriends.length; i++) {
+          const onlineFriend = onlineFriends[i];
+          io.to(onlineFriend.id).emit('activity-changes', {
+            online: status,
+            user_id: user.user_id
+          });
+        }
+      }
+
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    }
 
 }
 
