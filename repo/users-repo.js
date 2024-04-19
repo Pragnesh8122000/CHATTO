@@ -33,7 +33,8 @@ class UserRepo {
     }
 
     updateUserStatus = async (user_id, status) => {
-        return await User.update({ status }, { where: { id : user_id } })
+        // update user
+        return await User.update({ status }, { where: { id: user_id } })
     }
 }
 module.exports = UserRepo

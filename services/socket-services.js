@@ -105,8 +105,13 @@ class SocketServer {
         users.splice(currentUserIndex, 1);
       }
 
-      // make user status inactive
-      await this.userServices.updateUserStatus(userId, this.constants.DATABASE.ENUMS.USER_STATUS.INACTIVE);
+      // make user active
+      const currentUserStatus = await this.userServices.getUserById(userId);
+
+      if (currentUserStatus.resObj.data.user.status !== "away") {
+        // make user status inactive
+        await this.userServices.updateUserStatus(userId, this.constants.DATABASE.ENUMS.USER_STATUS.INACTIVE);
+      }
 
       // send active notification to all friends
       await this.SendActivityNotification(io, socket, users, userId);
@@ -445,11 +450,11 @@ class SocketServer {
         }
       }
 
-      } catch (error) {
-        console.log(error);
-        return false;
-      }
+    } catch (error) {
+      console.log(error);
+      return false;
     }
+  }
 
 }
 

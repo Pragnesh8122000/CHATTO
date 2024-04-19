@@ -12,8 +12,9 @@ module.exports = {
 
     // add new column of status
     await queryInterface.addColumn('Users', 'status', {
-      type: Sequelize.ENUM('active', 'inactive', 'deleted'),
+      type: Sequelize.STRING,
       defaultValue: 'inactive',
+
       allowNull: false,
     });
   },

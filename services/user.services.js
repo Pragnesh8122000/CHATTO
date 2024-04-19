@@ -169,6 +169,40 @@ class ChatServices {
             }
         }
     }
+
+    getUserById = async (user_id) => {
+        try {
+            const user = await this.repo.userRepo.getUserById(user_id);
+            if (!user) {
+                return {
+                    statusCode: 404,
+                    resObj: {
+                        status: false,
+                        message: this.messages.allMessages.USER_NOT_EXIST
+                    }
+                }
+            }
+            return {
+                statusCode: 200,
+                resObj: {
+                    status: true,
+                    message: this.messages.allMessages.GET_USER_BY_ID_SUCCESS,
+                    data: {
+                        user
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            return {
+                statusCode: 500,
+                resObj: {
+                    status: false,
+                    message: this.messages.allMessages.GET_USER_BY_ID_FAILED
+                }
+            }
+        }
+    }
 }
 
 module.exports = new ChatServices()

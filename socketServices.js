@@ -35,7 +35,10 @@ class SocketService {
                     await services.handleGetConversationList(io, socket, users);
 
                     // make user active
-                    await services.userServices.updateUserStatus(user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);
+                    const currentUserStatus = await services.userServices.getUserById(user_id);
+                    if (currentUserStatus.resObj.data.user.status !== "away"){
+                        await services.userServices.updateUserStatus(user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);
+                    }
 
                     // send active notification to all friends
                     await services.SendActivityNotification(io, socket, users, user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);

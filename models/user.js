@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE,
     user_code : DataTypes.STRING,
     status: {
-      type: DataTypes.ENUM('active', 'inactive', 'deleted'),
+      type: DataTypes.ENUM('active', 'inactive', 'away', 'deleted'),
       defaultValue: 'inactive',
       allowNull: false
   },
