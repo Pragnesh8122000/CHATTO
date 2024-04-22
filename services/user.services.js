@@ -228,10 +228,11 @@ class UserServices {
     async getFilteredUsersByReqToAndFrom(user, userFriends) {
         let receiverUser;
         return userFriends.map(friend => {
-
+            // console.log(user && friend.req_from.id === user.user_id);
             // get friend plain object
             friend = friend.get({ plain: true });
-            receiverUser = user && friend.req_from.id === user.user_id ? friend.req_to : friend.req_from;
+            receiverUser = user && friend.req_from.id == user.user_id ? friend.req_to : friend.req_from;
+            // console.log(receiverUser);
             delete friend.req_to;
             delete friend.req_from;
             return receiverUser.id;

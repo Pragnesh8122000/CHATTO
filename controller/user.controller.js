@@ -273,8 +273,10 @@ class UserController extends BaseController {
     let userFriends = await this.repo.friendsRepo.getUserFriends(id);
     // get online friends from users friends array
     const filteredFriends = await this.userServices.getFilteredUsersByReqToAndFrom(user, userFriends);
+
     // get online friends from users array
     const onlineFriends = users.filter(user => filteredFriends.some(friendId => user.user_id === friendId));
+
     let socket = req.app.get('socketService');
     await this.socketServices.sendActivityNotificationToOnlineFriends(socket, onlineFriends,user, status);
     res.status(updateUser.statusCode).send({
