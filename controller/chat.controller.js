@@ -1,6 +1,6 @@
 const BaseController = require("../controller/base.controller");
 const { Conversation, Participant, Chat, User, Friend, ChatRead } = require("../models");
-const { io, users } = require("../socketServices");
+// const { io, users } = require("../socketServices");
 const { Op } = require("sequelize");
 class ChatController extends BaseController {
   constructor() {
@@ -54,7 +54,6 @@ class ChatController extends BaseController {
       let { conversationId, limit, skip } = req.query;
       limit = limit ? Number(limit) : 30;
       skip = skip ? Number(skip) : 0;
-      let isReceiverOnline = false;
 
       // get the conversation by conversation id
       const filteredChats = await Chat.findAll({
@@ -97,24 +96,13 @@ class ChatController extends BaseController {
           attributes: [
             this.constants.DATABASE.TABLE_ATTRIBUTES.COMMON.ID,
             this.constants.DATABASE.TABLE_ATTRIBUTES.USER.FIRST_NAME,
-            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME
+            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.LAST_NAME,
+            this.constants.DATABASE.TABLE_ATTRIBUTES.USER.STATUS,
           ],
           as: this.constants.DATABASE.CONNECTION_REF.USER
         },
         ],
       })
-      const messageReceiverId = messageReceiver[0]?.user?.id;
-
-      if (messageReceiverId) {
-        // get user from users
-        const user = users.find(user => user.user_id === messageReceiverId);
-        if (user) {
-          isReceiverOnline = true;
-        }
-      }
-      messageReceiver[0].user = messageReceiver[0].user.get({ plain: true });
-
-      messageReceiver[0].user.isOnline = isReceiverOnline;
       
 
       // get message receiver

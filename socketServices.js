@@ -4,7 +4,9 @@ const services = require("./services/socket-services")
 const validation = require("./validations/socket.validation")
 const messages = require("./messages/socket.messages")
 const constants = require("./helpers/constants")
-const users = [];
+const userBridge = require('./user-bridge');
+
+const users = userBridge.users
 
 class SocketService {
 
@@ -32,16 +34,17 @@ class SocketService {
                 try {
                     // push the user details into users array
                     users.push({ id: socket.id, user_name, user_id: Number(user_id) });
+                    userBridge.setUsers(users);
                     await services.handleGetConversationList(io, socket, users);
 
                     // make user active
                     const currentUserStatus = await services.userServices.getUserById(user_id);
                     if (currentUserStatus.resObj.data.user.status !== "away"){
                         await services.userServices.updateUserStatus(user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);
+                        // send active notification to all friends
+                        await services.SendActivityNotification(io, socket, users, user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);
                     }
 
-                    // send active notification to all friends
-                    await services.SendActivityNotification(io, socket, users, user_id, constants.DATABASE.ENUMS.USER_STATUS.ACTIVE);
 
                     // listen to message event
                     socket.on(constants.SOCKET.EVENTS.MESSAGE, (messageObj) => services.handleMessageEvent(io, socket, messageObj, users));

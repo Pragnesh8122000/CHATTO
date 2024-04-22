@@ -8,6 +8,8 @@ class UserController extends BaseController {
     this.departmentValidation = require("../validations/department.validation");
     this.messages = require("../messages/user.messages");
     this.constants = require("../helpers/constants").DATABASE;
+    this.socketServices = require("../services/socket-services");
+    this.bridgeUsers = require("../user-bridge")
   }
   getUserList = async (req, res) => {
     try {
@@ -261,6 +263,20 @@ class UserController extends BaseController {
     const { id } = req.params;
     const { status } = req.body;
     const updateUser = await this.userServices.updateUserStatus(id, status);
+    const users = this.bridgeUsers.getUsers();
+    let user = await this.repo.userRepo.getUserById(id);
+    // plain text
+    user = user.get({ plain: true });
+    delete user.id;
+    user.user_id = id;
+    // // get user friends
+    let userFriends = await this.repo.friendsRepo.getUserFriends(id);
+    // get online friends from users friends array
+    const filteredFriends = await this.userServices.getFilteredUsersByReqToAndFrom(user, userFriends);
+    // get online friends from users array
+    const onlineFriends = users.filter(user => filteredFriends.some(friendId => user.user_id === friendId));
+    let socket = req.app.get('socketService');
+    await this.socketServices.sendActivityNotificationToOnlineFriends(socket, onlineFriends,user, status);
     res.status(updateUser.statusCode).send({
       status: updateUser.resObj.status,
       message: updateUser.resObj.message

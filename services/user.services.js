@@ -1,6 +1,5 @@
-const { Conversation, Participant, Chat, User, Friend } = require("../models");
-const { Op } = require("sequelize");
-class ChatServices {
+
+class UserServices {
     constructor() {
         this.bcrypt = require("bcrypt");
         this.jwt = require("jsonwebtoken");
@@ -9,6 +8,8 @@ class ChatServices {
         this.helpers = require("../helpers/helper");
         this.repo = require("../repo/repo");
         this.userServices = require("./user.services");
+        this.bridgeUsers = require("../user-bridge")
+        // this.socketServices = require("../services/socket-services");
     }
 
 
@@ -139,6 +140,7 @@ class ChatServices {
 
     updateUserStatus = async (user_id, status) => {
         try {
+            let users = this.bridgeUsers.getUsers();
             // get user
             const user = await this.repo.userRepo.getUserById(user_id);
             if (!user) {
@@ -151,6 +153,24 @@ class ChatServices {
                 }
             }
             await this.repo.userRepo.updateUserStatus(user_id, status);
+
+            // // get user friends
+            // let userFriends = await this.repo.friendsRepo.getUserFriends(user_id);
+            // // get online friends from users friends array
+            // const filteredFriends = await this.getFilteredUsersByReqToAndFrom(user, userFriends);
+            // // get online friends from users array
+            // const onlineFriends = users.filter(user => filteredFriends.some(friendId => user.user_id === friendId));
+            // // send notification to online friends
+            // if (onlineFriends.length > 0) {
+            //     //   await this.socketServices.sendActivityNotificationToOnlineFriends(io, onlineFriends,user, status)
+            //     for (let i = 0; i < onlineFriends.length; i++) {
+            //         const onlineFriend = onlineFriends[i];
+            //         io.to(onlineFriend.id).emit(this.constants.SOCKET.EVENTS.ACTIVITY_CHANGE, {
+            //             online: status,
+            //             user_id: user.user_id
+            //         });
+            //     }
+            // }
             return {
                 statusCode: 200,
                 resObj: {
@@ -203,6 +223,20 @@ class ChatServices {
             }
         }
     }
+
+    // get filtered friends in user object in friends array
+    async getFilteredUsersByReqToAndFrom(user, userFriends) {
+        let receiverUser;
+        return userFriends.map(friend => {
+
+            // get friend plain object
+            friend = friend.get({ plain: true });
+            receiverUser = user && friend.req_from.id === user.user_id ? friend.req_to : friend.req_from;
+            delete friend.req_to;
+            delete friend.req_from;
+            return receiverUser.id;
+        })
+    }
 }
 
-module.exports = new ChatServices()
+module.exports = new UserServices()

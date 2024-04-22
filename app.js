@@ -4,13 +4,18 @@ const socketService = require('./socketServices');
 
 const indexRouter = require("./routes/index");
 const middleware = require("./middleware/index");
+
+const userBridge = require('./user-bridge');
 const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 const server = http.Server(app);
 
-app.set('socketService', socketService.SocketService.Initialize(server));
+const socketServiceInstance = socketService.SocketService.Initialize(server);
+userBridge.setUsers(socketServiceInstance.users);
+
+app.set('socketService', socketServiceInstance);
 
 app.use(express.json());
 
