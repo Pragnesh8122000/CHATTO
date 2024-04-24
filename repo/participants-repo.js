@@ -6,6 +6,24 @@ class ParticipantRepo {
 
     }
 
+    getUserParticipantByConversationId = async (conversationId, userId) => {
+        return await Participant.findOne({
+            where: {
+                user_id: userId,
+                conversation_id: conversationId
+            }
+        })
+    }
+
+    getReceiverParticipantByConversationId = async (conversationId, userId) => {
+        return await Participant.findOne({
+            where: {
+                user_id: { [Op.ne]: userId },
+                conversation_id: conversationId
+            }
+        })
+    }
+
     addMultipleParticipants = async (participantsArray) => {
         return await Participant.bulkCreate(participantsArray);
     }

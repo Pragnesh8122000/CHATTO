@@ -96,7 +96,8 @@ module.exports = {
             CHAT_BY_CONVERSATION_ID: "chat_by_conversation_id",
             REQ_FROM: "req_from",
             REQ_TO: "req_to",
-            FRIENDS: "friends"
+            FRIENDS: "friends",
+            CHAT_READ: "chat_read"
         },
         COMMON_QUERY: {
             ORDER: {
