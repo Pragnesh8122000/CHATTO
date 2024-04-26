@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
     user_code : DataTypes.STRING,
+    is_google_signup: DataTypes.BOOLEAN,
     status: {
       type: DataTypes.ENUM('active', 'inactive', 'away', 'deleted'),
       defaultValue: 'inactive',

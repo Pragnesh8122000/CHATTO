@@ -13,4 +13,11 @@ exports.allMessages = {
   UPDATE_USER_STATUS_SUCCESS : "User status updated successfully",
   UPDATE_USER_STATUS_FAILED : "User status update failed",
   SEND_ACTIVE_NOTIFICATION_SUCCESS : "Active notification sent successfully",
+  FORGET_PASSWORD_SUCCESS : "Password changed successfully",
+  FORGET_PASSWORD_FAILED : "Password change failed",
+  GOOGLE_LOG_IN_SUCCESS : "Google login successfully",
+  GOOGLE_LOG_IN_FAILED : "Google login failed",
+  INVALID_CREDENTIALS : "Invalid credentials",
+  GOOGLE_SIGN_IN_FAILED : "Google sign in failed",
+  NO_GOOGLE_ACCOUNT_EXIST : "Your google account is not associated with Chatto",
 };

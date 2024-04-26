@@ -96,7 +96,6 @@ class UserController extends BaseController {
           this.constants.TABLE_ATTRIBUTES.USER.FIRST_NAME,
           this.constants.TABLE_ATTRIBUTES.USER.LAST_NAME,
           this.constants.TABLE_ATTRIBUTES.USER.EMAIL,
-          this.constants.TABLE_ATTRIBUTES.USER.DEPARTMENT_ID,
         ],
       });
 
