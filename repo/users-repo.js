@@ -36,5 +36,10 @@ class UserRepo {
         // update user
         return await User.update({ status }, { where: { id: user_id } })
     }
+
+    changePassword = async (user_id, password) => {
+        // update user
+        return await User.update({ password }, { where: { id: user_id } })
+    }
 }
 module.exports = UserRepo
