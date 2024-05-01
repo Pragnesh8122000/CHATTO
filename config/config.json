@@ -10,18 +10,16 @@
   "development": {
     "username": "root",
     "password": "123",
-    "database": "chattodocker",
-    "port": "5432",
-    "host": "localhost",
-    "dialect": "postgres"
-  },
-  "local": {
-    "username": "root",
-    "password": "123",
     "database": "chatto",
     "port": "5432",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "render": {
     "username": "root",
