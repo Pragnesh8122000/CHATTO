@@ -266,8 +266,8 @@ class UserController extends BaseController {
     let user = await this.repo.userRepo.getUserById(id);
     // plain text
     user = user.get({ plain: true });
-    delete user.id;
     user.user_id = id;
+    delete user.id;
     // // get user friends
     let userFriends = await this.repo.friendsRepo.getUserFriends(id);
     // get online friends from users friends array
