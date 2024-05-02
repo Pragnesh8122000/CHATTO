@@ -13,13 +13,7 @@
     "database": "chatto",
     "port": "5432",
     "host": "localhost",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "dialect": "postgres"
   },
   "render": {
     "username": "root",
