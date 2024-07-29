@@ -8,19 +8,19 @@
     "dialect": "postgres"
   },
   "development": {
-    "username": "root",
-    "password": "123",
-    "database": "chatto",
-    "port": "5432",
-    "host": "localhost",
+    "username": "postgres.fhraflgvymqtcdxsdtlv",
+    "password": "admin@chatto",
+    "database": "postgres",
+    "port": "6543",
+    "host": "aws-0-ap-south-1.pooler.supabase.com",
     "dialect": "postgres"
   },
   "render": {
-    "username": "root",
-    "password": "HtQZ1Yfwma57DlOaOx8ZwoRz5nwSCOOl",
-    "database": "chatto_render",
-    "port": "5432",
-    "host": "dpg-cnsj6tda73kc73b54so0-a.singapore-postgres.render.com",
+    "username": "postgres.fhraflgvymqtcdxsdtlv",
+    "password": "admin@chatto",
+    "database": "postgres",
+    "port": "6543",
+    "host": "aws-0-ap-south-1.pooler.supabase.com",
     "dialectOptions": {
       "ssl": {
         "require": true,
@@ -28,7 +28,7 @@
       }
     },
     "dialect": "postgres"
-  },
+},
   "supabase": {
     "username": "postgres.fhraflgvymqtcdxsdtlv",
     "password": "admin@chatto",
