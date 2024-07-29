@@ -28,5 +28,19 @@
       }
     },
     "dialect": "postgres"
+  },
+  "supabase": {
+    "username": "postgres.ebpwfznffycfpjbyiexf",
+    "password": "20020826$Dhpatel",
+    "database": "postgres",
+    "port": "6543",
+    "host": "aws-0-ap-south-1.pooler.supabase.com",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    },
+    "dialect": "postgres"
   }
 }
